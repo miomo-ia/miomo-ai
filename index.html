@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>موقعي الذكي - Miomo AI</title>
+    <style>
+        body { font-family: Tahoma, sans-serif; background: #0f172a; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .chat-container { width: 400px; background: #1e293b; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        #chat-box { height: 300px; overflow-y: auto; border: 1px solid #334155; padding: 10px; margin-bottom: 10px; border-radius: 8px; background: #0f172a; }
+        input { width: 72%; padding: 10px; border: 1px solid #334155; border-radius: 6px; background: #0f172a; color: #fff; }
+        button { width: 22%; padding: 10px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; }
+        button:hover { background: #2563eb; }
+        .message { margin-bottom: 10px; padding: 8px; border-radius: 6px; font-size: 14px; }
+        .user-msg { background: #334155; text-align: right; }
+        .ai-msg { background: #1e3a8a; text-align: right; }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <h2>مساعد Miomo AI</h2>
+        <div id="chat-box"></div>
+        <div style="display: flex; justify-content: space-between;">
+            <input type="text" id="user-input" placeholder="اكتب سؤالك هنا..." />
+            <button onclick="sendMessage()">إرسال</button>
+        </div>
+    </div>
+
+    <script>
+        // استبدل العبارة التالية بمفتاح الـ API الخاص بك بين العارضتين
+        const API_KEY = "AQ.Ab8RN6JVyAMayssWpiq1futrl_X12Yy8wYc8QrhSOMkGos4Bpg"; 
+
+        async function sendMessage() {
+            const inputField = document.getElementById("user-input");
+            const chatBox = document.getElementById("chat-box");
+            const userText = inputField.value.trim();
+
+            if (!userText) return;
+
+            chatBox.innerHTML += `<div class="message user-msg"><b>أنت:</b> ${userText}</div>`;
+            inputField.value = "";
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: userText }] }]
+                    })
+                });
+
+                const data = await response.json();
+                const aiReply = data.candidates[0].content.parts[0].text;
+
+                chatBox.innerHTML += `<div class="message ai-msg"><b>الذكاء الاصطناعي:</b> ${aiReply}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+            } catch (error) {
+                chatBox.innerHTML += `<div class="message ai-msg" style="color:red;">عذراً، تأكد من مفتاح الـ API أو الاتصال.</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
